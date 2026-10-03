@@ -204,23 +204,23 @@ CREATE TRIGGER update_medical_records_updated_at BEFORE UPDATE ON medical_record
 INSERT INTO users (user_id, email, password_hash, role) VALUES
 ('a1111111-1111-1111-1111-111111111111', 'admin@clinic.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7RMKF4hX5m', 'admin'),
 ('d2222222-2222-2222-2222-222222222222', 'doctor@clinic.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7RMKF4hX5m', 'doctor'),
-('p3333333-3333-3333-3333-333333333333', 'patient@clinic.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7RMKF4hX5m', 'patient');
+('33333333-3333-3333-3333-333333333333', 'patient@clinic.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7RMKF4hX5m', 'patient');
 
 -- Insert test doctor
 INSERT INTO doctors (doctor_id, user_id, first_name, last_name, specialization, license_number, phone, consultation_fee) VALUES
-('d0000001-0000-0000-0000-000000000001', 'd2222222-2222-2222-2222-222222222222', 'John', 'Smith', 'General Practitioner', 'LIC-GP-12345', '+63-917-1234567', 1500.00);
+('00000001-0000-0000-0000-000000000001', 'd2222222-2222-2222-2222-222222222222', 'John', 'Smith', 'General Practitioner', 'LIC-GP-12345', '+63-917-1234567', 1500.00);
 
 -- Insert test patient
 INSERT INTO patients (patient_id, user_id, first_name, last_name, date_of_birth, gender, phone, address) VALUES
-('p0000001-0000-0000-0000-000000000001', 'p3333333-3333-3333-3333-333333333333', 'Jane', 'Doe', '1990-05-15', 'female', '+63-917-7654321', '123 Main St, Manila');
+('00000002-0000-0000-0000-000000000002', '33333333-3333-3333-3333-333333333333', 'Jane', 'Doe', '1990-05-15', 'female', '+63-917-7654321', '123 Main St, Manila');
 
 -- Insert doctor schedule (Monday to Friday, 9 AM - 5 PM)
 INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time) VALUES
-('d0000001-0000-0000-0000-000000000001', 1, '09:00:00', '17:00:00'),
-('d0000001-0000-0000-0000-000000000001', 2, '09:00:00', '17:00:00'),
-('d0000001-0000-0000-0000-000000000001', 3, '09:00:00', '17:00:00'),
-('d0000001-0000-0000-0000-000000000001', 4, '09:00:00', '17:00:00'),
-('d0000001-0000-0000-0000-000000000001', 5, '09:00:00', '17:00:00');
+('00000001-0000-0000-0000-000000000001', 1, '09:00:00', '17:00:00'),
+('00000001-0000-0000-0000-000000000001', 2, '09:00:00', '17:00:00'),
+('00000001-0000-0000-0000-000000000001', 3, '09:00:00', '17:00:00'),
+('00000001-0000-0000-0000-000000000001', 4, '09:00:00', '17:00:00'),
+('00000001-0000-0000-0000-000000000001', 5, '09:00:00', '17:00:00');
 
 -- Log the schema creation
 INSERT INTO audit_log (action, details) VALUES

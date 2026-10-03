@@ -214,11 +214,23 @@ export const login = async (req, res) => {
     const { token: refreshToken, tokenId } = await generateRefreshToken(user.user_id);
     
     // Set refresh token as httpOnly cookie
+    console.log('Setting refresh token cookie:', {
+      token: refreshToken.substring(0, 20) + '...',
+      cookieOptions: {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/'
+      }
+    });
+    
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true, // Cannot be accessed by JavaScript (XSS protection)
-      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-      sameSite: 'strict', // CSRF protection
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      secure: false, // Allow HTTP in development
+      sameSite: 'lax', // Changed from 'strict' to allow localhost
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/' // Explicitly set path
     });
     
     // Log successful login

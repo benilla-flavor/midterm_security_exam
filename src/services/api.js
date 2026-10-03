@@ -49,7 +49,7 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     
     // If 401 and not already retrying, try to refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/api/auth/refresh') {
       originalRequest._retry = true;
       
       try {
@@ -66,8 +66,7 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh failed - user needs to login again
-        window.location.href = '/login';
+        // Refresh failed - just reject, don't redirect
         return Promise.reject(refreshError);
       }
     }

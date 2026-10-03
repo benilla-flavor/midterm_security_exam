@@ -3,11 +3,9 @@
  * Security Features:
  * - Access token stored in memory (NOT localStorage - XSS protection)
  * - Refresh token handled via httpOnly cookies
- * - Automatic token refresh
- * - CSRF token management
  */
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import api from '../services/api';
 
 const AuthContext = createContext(null);
@@ -15,38 +13,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-  
-  // Check authentication status on mount
-  useEffect(() => {
-    checkAuth();
-  }, []);
-  
-  const checkAuth = async () => {
-    try {
-      // Try to get user info using existing session
-      const response = await api.get('/auth/me');
-      if (response.data.success) {
-        setUser(response.data.user);
-      }
-    } catch (error) {
-      // Try to refresh token
-      try {
-        const refreshResponse = await api.post('/auth/refresh');
-        if (refreshResponse.data.success) {
-          setAccessToken(refreshResponse.data.accessToken);
-          const userResponse = await api.get('/auth/me');
-          setUser(userResponse.data.user);
-        }
-      } catch (refreshError) {
-        // Not authenticated
-        setUser(null);
-        setAccessToken(null);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loading, setLoading] = useState(false);
   
   const login = async (email, password) => {
     try {
@@ -55,6 +22,7 @@ export function AuthProvider({ children }) {
       if (response.data.success) {
         setAccessToken(response.data.accessToken);
         setUser(response.data.user);
+        window.accessToken = response.data.accessToken;
         return { success: true };
       }
     } catch (error) {
@@ -89,6 +57,7 @@ export function AuthProvider({ children }) {
     } finally {
       setUser(null);
       setAccessToken(null);
+      window.accessToken = null;
     }
   };
   
