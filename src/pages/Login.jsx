@@ -7,8 +7,8 @@
  * - No password visible in dev tools
  */
 
-import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import React, { useRef, useState } from 'react';
+import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,8 +29,11 @@ function Login() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const { login, pendingBooking } = useAuth();
+  const { user, loading: sessionLoading, login, pendingBooking } = useAuth();
   const navigate = useNavigate();
+  // Set before signing in, so the already-signed-in redirect below never races
+  // the post-login navigation (which may need to go to the held booking slip).
+  const signingIn = useRef(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,6 +47,7 @@ function Login() {
     if (Object.keys(errors).length) return;
 
     setLoading(true);
+    signingIn.current = true;
     // Sanitize input (XSS prevention)
     const sanitizedEmail = DOMPurify.sanitize(email.trim());
     const result = await login(sanitizedEmail, password);
@@ -58,6 +62,7 @@ function Login() {
       return;
     }
 
+    signingIn.current = false;
     setError(result.error);
     if (result.warning) setWarning(result.warning);
   };
@@ -68,6 +73,8 @@ function Login() {
     setFieldErrors({});
     setError('');
   };
+
+  if (!sessionLoading && user && !signingIn.current) return <Navigate to="/app" replace />;
 
   return (
     <main className="auth wrap">

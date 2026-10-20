@@ -80,7 +80,7 @@ function App() {
           <div id="content">
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
+              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
 
               <Route path="/app" element={<ProtectedRoute><div className="wrap"><Home /></div></ProtectedRoute>} />
