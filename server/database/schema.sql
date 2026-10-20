@@ -202,13 +202,20 @@ CREATE TRIGGER update_medical_records_updated_at BEFORE UPDATE ON medical_record
 
 -- Insert test users
 INSERT INTO users (user_id, email, password_hash, role) VALUES
-('a1111111-1111-1111-1111-111111111111', 'admin@clinic.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7RMKF4hX5m', 'admin'),
-('d2222222-2222-2222-2222-222222222222', 'doctor@clinic.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7RMKF4hX5m', 'doctor'),
-('33333333-3333-3333-3333-333333333333', 'patient@clinic.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7RMKF4hX5m', 'patient');
+('a1111111-1111-1111-1111-111111111111', 'admin@clinic.com', '$2b$12$l.AznJTLUMvY/aWnwmLce.tQy8lpQDAD.K16qdSwFiruq1CRXUapK', 'admin'),
+('d2222222-2222-2222-2222-222222222222', 'doctor@clinic.com', '$2b$12$2Dl/NIHd3kg/ehJATAnOFexpSKxruNGKYmv2E7PWgamHRpuEdrJn6', 'doctor'),
+('33333333-3333-3333-3333-333333333333', 'patient@clinic.com', '$2b$12$qYCyad3kItYuCdDPTBZqa.c38rPNIbp6w5KCSP0be9mE/npjWnLRW', 'patient'),
+-- Additional doctors so patients have a choice when booking (password: Doctor123!)
+('d4444444-4444-4444-4444-444444444444', 'reyes@clinic.com', '$2b$12$2Dl/NIHd3kg/ehJATAnOFexpSKxruNGKYmv2E7PWgamHRpuEdrJn6', 'doctor'),
+('d5555555-5555-5555-5555-555555555555', 'tan@clinic.com', '$2b$12$2Dl/NIHd3kg/ehJATAnOFexpSKxruNGKYmv2E7PWgamHRpuEdrJn6', 'doctor'),
+('d6666666-6666-6666-6666-666666666666', 'garcia@clinic.com', '$2b$12$2Dl/NIHd3kg/ehJATAnOFexpSKxruNGKYmv2E7PWgamHRpuEdrJn6', 'doctor');
 
--- Insert test doctor
+-- Insert test doctors
 INSERT INTO doctors (doctor_id, user_id, first_name, last_name, specialization, license_number, phone, consultation_fee) VALUES
-('00000001-0000-0000-0000-000000000001', 'd2222222-2222-2222-2222-222222222222', 'John', 'Smith', 'General Practitioner', 'LIC-GP-12345', '+63-917-1234567', 1500.00);
+('00000001-0000-0000-0000-000000000001', 'd2222222-2222-2222-2222-222222222222', 'John', 'Smith', 'General Practitioner', 'LIC-GP-12345', '+63-917-1234567', 1500.00),
+('00000001-0000-0000-0000-000000000002', 'd4444444-4444-4444-4444-444444444444', 'Maria', 'Reyes', 'Pediatrics', 'LIC-PD-22871', '+63-917-2223344', 1800.00),
+('00000001-0000-0000-0000-000000000003', 'd5555555-5555-5555-5555-555555555555', 'Daniel', 'Tan', 'Cardiology', 'LIC-CD-30419', '+63-917-3334455', 2500.00),
+('00000001-0000-0000-0000-000000000004', 'd6666666-6666-6666-6666-666666666666', 'Liza', 'Garcia', 'Dermatology', 'LIC-DM-41566', '+63-917-4445566', 2000.00);
 
 -- Insert test patient
 INSERT INTO patients (patient_id, user_id, first_name, last_name, date_of_birth, gender, phone, address) VALUES
@@ -220,7 +227,15 @@ INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time) VALU
 ('00000001-0000-0000-0000-000000000001', 2, '09:00:00', '17:00:00'),
 ('00000001-0000-0000-0000-000000000001', 3, '09:00:00', '17:00:00'),
 ('00000001-0000-0000-0000-000000000001', 4, '09:00:00', '17:00:00'),
-('00000001-0000-0000-0000-000000000001', 5, '09:00:00', '17:00:00');
+('00000001-0000-0000-0000-000000000001', 5, '09:00:00', '17:00:00'),
+('00000001-0000-0000-0000-000000000002', 1, '08:00:00', '12:00:00'),
+('00000001-0000-0000-0000-000000000002', 3, '08:00:00', '12:00:00'),
+('00000001-0000-0000-0000-000000000002', 5, '13:00:00', '17:00:00'),
+('00000001-0000-0000-0000-000000000003', 2, '10:00:00', '16:00:00'),
+('00000001-0000-0000-0000-000000000003', 4, '10:00:00', '16:00:00'),
+('00000001-0000-0000-0000-000000000004', 1, '13:00:00', '18:00:00'),
+('00000001-0000-0000-0000-000000000004', 3, '13:00:00', '18:00:00'),
+('00000001-0000-0000-0000-000000000004', 6, '09:00:00', '13:00:00');
 
 -- Log the schema creation
 INSERT INTO audit_log (action, details) VALUES

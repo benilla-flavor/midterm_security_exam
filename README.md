@@ -74,48 +74,44 @@
 ## 🚀 Setup Instructions
 
 ### Prerequisites
-- Node.js 18+ 
-- PostgreSQL 15+
-- npm or yarn
+- Node.js 20.19+ (Vite 7 and React Router 7 need it; Node 22 LTS recommended)
+- PostgreSQL 15+ running locally, and the password of its `postgres` user
 
-### Installation Steps
+### Quick start
 
-1. **Clone and install dependencies**
+1. **Install dependencies**
 ```bash
-cd midterm_sec
 npm install
 ```
 
-2. **Set up environment variables**
+2. **Tell setup the PostgreSQL admin password.** Create a `.env` file containing one line (setup fills in the rest):
 ```bash
-# Copy the example file
-copy .env.example .env
-
-# Edit .env with your actual values
-# IMPORTANT: Generate secure secrets for production!
+PG_SUPERUSER_PASSWORD=the-password-of-the-postgres-user
 ```
 
-3. **Database setup**
+3. **Run setup.** It generates the JWT secrets, encryption key and app database password, creates the `secure_clinic` database, loads `server/database/schema.sql` with the demo accounts, and creates the least-privilege `clinic_app_user` with the grants from `server/database/create-user.sql`. It never overwrites a value already in `.env`.
 ```bash
-# Create database
-psql -U postgres
-CREATE DATABASE secure_clinic;
+npm run setup
+```
 
-# Run schema initialization
+4. **Start the app** (API and frontend together):
+```bash
+npm run dev
+```
+The site is at http://localhost:5173 and the API at http://localhost:3000.
+
+To wipe the database and reload the schema and demo data:
+```bash
+npm run setup -- --reset
+```
+
+### Manual database setup (alternative)
+```bash
+psql -U postgres -c "CREATE DATABASE secure_clinic;"
 psql -U postgres -d secure_clinic -f server/database/schema.sql
-
-# Create least-privilege user
 psql -U postgres -d secure_clinic -f server/database/create-user.sql
 ```
-
-4. **Run the application**
-```bash
-# Development mode (runs both frontend and backend)
-npm run dev
-
-# Frontend will be at http://localhost:5173
-# Backend API will be at http://localhost:3000
-```
+Then copy `.env.example` to `.env` and replace every placeholder, including `DB_PASSWORD` (it must match the `clinic_app_user` password).
 
 ### Default Test Accounts
 ```

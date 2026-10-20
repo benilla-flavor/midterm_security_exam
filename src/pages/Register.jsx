@@ -1,262 +1,220 @@
 /**
  * REGISTRATION PAGE
  * Security Features:
- * - Strong password requirements
- * - Input validation
+ * - Strong password requirements (mirrors the server's Zod password schema)
+ * - Input validation, re-checked by the server
  * - XSS prevention via DOMPurify
+ * - Empty optional fields are omitted rather than sent as blank strings
  */
 
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { Check, Circle, UserPlus } from 'lucide-react';
 import DOMPurify from 'dompurify';
+import { useAuth } from '../contexts/AuthContext';
+import { Microprint, Notice, FieldError } from '../components/Stationery';
+
+const PASSWORD_RULES = [
+  { test: (p) => p.length >= 8, label: 'At least 8 characters' },
+  { test: (p) => /[A-Z]/.test(p), label: 'An uppercase letter' },
+  { test: (p) => /[a-z]/.test(p), label: 'A lowercase letter' },
+  { test: (p) => /[0-9]/.test(p), label: 'A number' },
+  { test: (p) => /[!@#$%^&*(),.?":{}|<>]/.test(p), label: 'A symbol such as ! @ # ?' }
+];
+
+const EMPTY = {
+  email: '',
+  password: '',
+  confirmPassword: '',
+  role: 'patient',
+  firstName: '',
+  lastName: '',
+  dateOfBirth: '',
+  gender: '',
+  phone: '',
+  specialization: '',
+  licenseNumber: ''
+};
 
 function Register() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'patient',
-    firstName: '',
-    lastName: '',
-    dateOfBirth: '',
-    phone: '',
-    specialization: '',
-    licenseNumber: ''
-  });
-  
+  const [formData, setFormData] = useState(EMPTY);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  
+
   const { register } = useAuth();
   const navigate = useNavigate();
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
-  
+
   const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.email) newErrors.email = 'Email is required';
-    if (!formData.password) newErrors.password = 'Password is required';
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+    const next = {};
+    if (!formData.email.trim()) next.email = 'Enter an email address.';
+    if (!PASSWORD_RULES.every((rule) => rule.test(formData.password))) next.password = 'The password does not meet every rule yet.';
+    if (formData.password !== formData.confirmPassword) next.confirmPassword = 'The two passwords do not match.';
+    if (!formData.firstName.trim()) next.firstName = 'Enter a first name.';
+    if (!formData.lastName.trim()) next.lastName = 'Enter a last name.';
+    if (!formData.dateOfBirth) next.dateOfBirth = 'Enter a date of birth.';
+    if (formData.phone.trim() && !/^[\d\s\-+()]{10,20}$/.test(formData.phone.trim())) {
+      next.phone = 'Use 10 to 20 digits, spaces, dashes, + or brackets.';
     }
-    if (!formData.firstName) newErrors.firstName = 'First name is required';
-    if (!formData.lastName) newErrors.lastName = 'Last name is required';
-    if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
-    
     if (formData.role === 'doctor') {
-      if (!formData.specialization) newErrors.specialization = 'Specialization is required for doctors';
-      if (!formData.licenseNumber) newErrors.licenseNumber = 'License number is required for doctors';
+      if (!formData.specialization.trim()) next.specialization = 'Enter a specialization.';
+      if (!formData.licenseNumber.trim()) next.licenseNumber = 'Enter a license number.';
     }
-    
-    return newErrors;
+    return next;
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     const validationErrors = validateForm();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) return;
+
+    setLoading(true);
+
+    const clean = (value) => DOMPurify.sanitize(value.trim());
+    const payload = {
+      email: clean(formData.email),
+      password: formData.password,
+      role: formData.role,
+      firstName: clean(formData.firstName),
+      lastName: clean(formData.lastName),
+      dateOfBirth: formData.dateOfBirth
+    };
+    if (formData.gender) payload.gender = formData.gender;
+    if (formData.phone.trim()) payload.phone = formData.phone.trim();
+    if (formData.role === 'doctor') {
+      payload.specialization = clean(formData.specialization);
+      payload.licenseNumber = clean(formData.licenseNumber);
+    }
+
+    const result = await register(payload);
+    setLoading(false);
+
+    if (result.success) {
+      navigate('/login', { state: { registered: payload.email } });
       return;
     }
-    
-    setLoading(true);
-    setErrors({});
-    
-    // Sanitize all text inputs
-    const sanitizedData = {
-      ...formData,
-      email: DOMPurify.sanitize(formData.email.trim()),
-      firstName: DOMPurify.sanitize(formData.firstName.trim()),
-      lastName: DOMPurify.sanitize(formData.lastName.trim()),
-      phone: formData.phone.trim(),
-      specialization: DOMPurify.sanitize(formData.specialization.trim()),
-      licenseNumber: DOMPurify.sanitize(formData.licenseNumber.trim())
-    };
-    
-    const result = await register(sanitizedData);
-    
-    if (result.success) {
-      alert('Registration successful! Please login.');
-      navigate('/login');
+    if (result.details) {
+      const fieldErrors = {};
+      result.details.forEach((detail) => { fieldErrors[detail.field] = detail.message; });
+      setErrors(fieldErrors);
     } else {
-      if (result.details) {
-        const fieldErrors = {};
-        result.details.forEach(detail => {
-          fieldErrors[detail.field] = detail.message;
-        });
-        setErrors(fieldErrors);
-      } else {
-        setErrors({ general: result.error });
-      }
+      setErrors({ general: result.error });
     }
-    
-    setLoading(false);
   };
-  
-  return (
-    <div className="card" style={{ maxWidth: '600px', margin: '50px auto' }}>
-      <h2>Register for Secure Clinic</h2>
-      
-      {errors.general && <div className="error">{errors.general}</div>}
-      
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="role">Register as:</label>
-          <select id="role" name="role" value={formData.role} onChange={handleChange}>
-            <option value="patient">Patient</option>
-            <option value="doctor">Doctor</option>
-          </select>
-        </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div>
-            <label htmlFor="firstName">First Name *</label>
-            <input
-              id="firstName"
-              name="firstName"
-              type="text"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
-            {errors.firstName && <div className="error">{errors.firstName}</div>}
-          </div>
-          
-          <div>
-            <label htmlFor="lastName">Last Name *</label>
-            <input
-              id="lastName"
-              name="lastName"
-              type="text"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-            {errors.lastName && <div className="error">{errors.lastName}</div>}
-          </div>
-        </div>
-        
-        <div>
-          <label htmlFor="email">Email *</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          {errors.email && <div className="error">{errors.email}</div>}
-        </div>
-        
-        <div>
-          <label htmlFor="dateOfBirth">Date of Birth *</label>
-          <input
-            id="dateOfBirth"
-            name="dateOfBirth"
-            type="date"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-            required
-          />
-          {errors.dateOfBirth && <div className="error">{errors.dateOfBirth}</div>}
-        </div>
-        
-        <div>
-          <label htmlFor="phone">Phone</label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-        </div>
-        
-        {formData.role === 'doctor' && (
-          <>
-            <div>
-              <label htmlFor="specialization">Specialization *</label>
-              <input
-                id="specialization"
-                name="specialization"
-                type="text"
-                value={formData.specialization}
-                onChange={handleChange}
-                required={formData.role === 'doctor'}
-              />
-              {errors.specialization && <div className="error">{errors.specialization}</div>}
-            </div>
-            
-            <div>
-              <label htmlFor="licenseNumber">License Number *</label>
-              <input
-                id="licenseNumber"
-                name="licenseNumber"
-                type="text"
-                value={formData.licenseNumber}
-                onChange={handleChange}
-                required={formData.role === 'doctor'}
-              />
-              {errors.licenseNumber && <div className="error">{errors.licenseNumber}</div>}
-            </div>
-          </>
-        )}
-        
-        <div>
-          <label htmlFor="password">Password *</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <small>Min 8 chars, uppercase, lowercase, number, special char</small>
-          {errors.password && <div className="error">{errors.password}</div>}
-        </div>
-        
-        <div>
-          <label htmlFor="confirmPassword">Confirm Password *</label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
-          {errors.confirmPassword && <div className="error">{errors.confirmPassword}</div>}
-        </div>
-        
-        <button 
-          type="submit" 
-          className="btn-primary" 
-          disabled={loading}
-          style={{ width: '100%', marginTop: '10px' }}
-        >
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-      </form>
-      
-      <p style={{ marginTop: '20px', textAlign: 'center' }}>
-        Already have an account? <Link to="/login">Login here</Link>
-      </p>
+
+  const field = (name, label, props = {}) => (
+    <div className={`field${props.span ? ' span-2' : ''}`} data-invalid={errors[name] ? 'true' : undefined}>
+      <label htmlFor={name}>{label}</label>
+      <input
+        id={name}
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+        aria-invalid={errors[name] ? 'true' : undefined}
+        {...props.input}
+      />
+      <FieldError>{errors[name]}</FieldError>
     </div>
+  );
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  return (
+    <main className="auth wrap">
+      <section className="auth-sheet auth-sheet--wide sheet" aria-labelledby="register-title">
+        <Microprint />
+        <div className="sheet-body">
+          <h1 id="register-title" className="title">Create an account</h1>
+
+          {errors.general && <Notice tone="error">{errors.general}</Notice>}
+
+          <form onSubmit={handleSubmit} className="auth-form pins-inline" noValidate>
+            <fieldset className="role-pick">
+              <legend className="legend">Account type</legend>
+              {[
+                { value: 'patient', label: 'Patient', hint: 'Book visits and read your own records' },
+                { value: 'doctor', label: 'Doctor', hint: 'Needs a specialization and license number' }
+              ].map((option) => (
+                <label key={option.value} className="choice-row">
+                  <input
+                    type="radio"
+                    name="role"
+                    value={option.value}
+                    checked={formData.role === option.value}
+                    onChange={handleChange}
+                  />
+                  <span className="tick" aria-hidden="true" />
+                  <span className="doctor-name">{option.label}</span>
+                  <span className="doctor-spec">{option.hint}</span>
+                </label>
+              ))}
+            </fieldset>
+
+            <div className="form-grid">
+              {field('firstName', 'First name', { input: { autoComplete: 'given-name' } })}
+              {field('lastName', 'Last name', { input: { autoComplete: 'family-name' } })}
+              {field('dateOfBirth', 'Date of birth', { input: { type: 'date', max: today, autoComplete: 'bday' } })}
+              <div className="field">
+                <label htmlFor="gender">Gender (optional)</label>
+                <select id="gender" name="gender" value={formData.gender} onChange={handleChange}>
+                  <option value="">Not stated</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                  <option value="other">Other</option>
+                  <option value="prefer_not_to_say">Prefer not to say</option>
+                </select>
+              </div>
+              {field('phone', 'Phone (optional)', { input: { type: 'tel', autoComplete: 'tel', placeholder: '+63 917 123 4567' } })}
+              {field('email', 'Email', { input: { type: 'email', autoComplete: 'email' } })}
+
+              {formData.role === 'doctor' && (
+                <>
+                  {field('specialization', 'Specialization', { input: { placeholder: 'e.g. Pediatrics' } })}
+                  {field('licenseNumber', 'PRC license number', { input: { placeholder: 'e.g. LIC-PD-22871' } })}
+                </>
+              )}
+
+              {field('password', 'Password', { input: { type: 'password', autoComplete: 'new-password', 'aria-describedby': 'password-rules' } })}
+              {field('confirmPassword', 'Repeat password', { input: { type: 'password', autoComplete: 'new-password' } })}
+            </div>
+
+            <ul className="rules" id="password-rules" aria-label="Password rules">
+              {PASSWORD_RULES.map((rule) => {
+                const met = rule.test(formData.password);
+                return (
+                  <li key={rule.label} className={met ? 'is-met' : undefined}>
+                    {met ? <Check aria-hidden="true" /> : <Circle aria-hidden="true" />}
+                    {rule.label}
+                    <span className="sr-only">{met ? ' (met)' : ' (not met)'}</span>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <div className="pinned" style={{ '--pin-top': '8px' }}>
+              <button type="submit" className="btn" disabled={loading}>
+                <UserPlus aria-hidden="true" />
+                {loading ? 'Creating account…' : 'Create account'}
+              </button>
+              <p className="pin">
+                <strong>Never stored as typed</strong>
+                The server hashes the password with bcrypt (cost 12) and keeps only the hash.
+              </p>
+            </div>
+          </form>
+
+          <p className="auth-alt">
+            Already registered? <Link to="/login">Sign in</Link>
+          </p>
+        </div>
+      </section>
+    </main>
   );
 }
 

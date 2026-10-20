@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-20T11:30:00+08:00",
+  "title": "Design System: Secure Clinic",
+  "extensions": {
+    "colorMeta": {
+      "carbon-ink": { "role": "primary", "displayName": "Carbon Ink", "canonical": "#1c2a66", "tonalRamp": ["#0b1233", "#111b4a", "#1c2a66", "#2c3b80", "#3c4a83", "#67749b", "#a3abc8", "#dde1ef"] },
+      "stamp-red": { "role": "secondary", "displayName": "Stamp Red", "canonical": "#b02a1d", "tonalRamp": ["#3d0e09", "#6a1810", "#8f2117", "#b02a1d", "#cf4a3c", "#e2817a", "#f0b8b3", "#fae5e3"] },
+      "safety-mint": { "role": "neutral", "displayName": "Safety Mint", "canonical": "#e2ede6", "tonalRamp": ["#1f2e26", "#3b5146", "#5d7c6e", "#87a395", "#a3b8ad", "#c9dbd1", "#e2ede6", "#f4f9f6"] },
+      "sheet-mint": { "role": "neutral", "displayName": "Sheet Mint", "canonical": "#eef5f0" },
+      "sheet-mint-deep": { "role": "neutral", "displayName": "Sheet Mint Deep", "canonical": "#e6efe9" },
+      "carbon-ink-deep": { "role": "primary", "displayName": "Carbon Ink Deep", "canonical": "#111b4a" },
+      "carbon-ink-soft": { "role": "primary", "displayName": "Carbon Ink Soft", "canonical": "#3c4a83" },
+      "carbon-ink-faint": { "role": "primary", "displayName": "Carbon Ink Faint", "canonical": "#67749b" },
+      "form-rule": { "role": "neutral", "displayName": "Form Rule", "canonical": "#a3b8ad" },
+      "form-rule-strong": { "role": "neutral", "displayName": "Form Rule Strong", "canonical": "#5d7c6e" },
+      "void-grey": { "role": "neutral", "displayName": "Void Grey", "canonical": "#646a77" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The landing hook only." },
+      "headline": { "displayName": "Headline", "purpose": "Page and section titles." },
+      "title": { "displayName": "Title", "purpose": "Sheet and group headings." },
+      "letterhead": { "displayName": "Letterhead", "purpose": "Brand name and the Appointment slip title, expanded caps." },
+      "body": { "displayName": "Body", "purpose": "Prose and data, tabular figures." },
+      "label": { "displayName": "Label", "purpose": "Printed field captions and ledger headers, condensed caps." }
+    },
+    "shadows": [
+      { "name": "sheet", "value": "0 1px 0 rgba(28,42,102,0.05), 0 18px 40px -24px rgba(17,27,74,0.45)", "purpose": "Every sheet, slip and ledger lifted off the ground." },
+      { "name": "torn-stub", "value": "0 16px 30px -18px rgba(17,27,74,0.5)", "purpose": "The patient stub after it tears away." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "All state transitions." },
+      { "name": "stub-tear", "value": "640ms ease-out: translateY(18px) rotate(1.4deg)", "purpose": "The one authored moment: booking tears off the stub." },
+      { "name": "stamp-press", "value": "420ms ease-out: scale 1.9 to 1, rotate -9deg to -2.5deg", "purpose": "A new stamp lands once." }
+    ],
+    "breakpoints": [
+      { "name": "phone", "value": "600px" },
+      { "name": "stack", "value": "900px" },
+      { "name": "hero-stack", "value": "1000px" },
+      { "name": "pins-outside", "value": "1180px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Carbon-ink button for the one main action on a sheet.",
+      "html": "<button class=\"ds-btn\">Book this visit</button>",
+      "css": ".ds-btn { min-height: 44px; padding: 10px 20px; border: 1.5px solid #1c2a66; border-radius: 2px; background: #1c2a66; color: #eef5f0; font: 700 16px/1 'Archivo Variable', system-ui, sans-serif; font-stretch: 104%; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16,1,0.3,1); } .ds-btn:hover { background: #111b4a; border-color: #111b4a; } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 2px solid #1c2a66; outline-offset: 3px; }"
+    },
+    {
+      "name": "Line Button",
+      "kind": "button",
+      "refersTo": "button-line",
+      "description": "Secondary action outlined in ink.",
+      "html": "<button class=\"ds-btn-line\">Sign in</button>",
+      "css": ".ds-btn-line { min-height: 44px; padding: 10px 20px; border: 1.5px solid #1c2a66; border-radius: 2px; background: transparent; color: #1c2a66; font: 700 16px/1 'Archivo Variable', system-ui, sans-serif; cursor: pointer; } .ds-btn-line:hover { background: rgba(28,42,102,0.07); } .ds-btn-line:focus-visible { outline: 2px solid #1c2a66; outline-offset: 3px; }"
+    },
+    {
+      "name": "Stamp Button",
+      "kind": "button",
+      "refersTo": "button-stamp",
+      "description": "Cancel and deactivate actions in stamp red.",
+      "html": "<button class=\"ds-btn-stamp\">Yes, cancel it</button>",
+      "css": ".ds-btn-stamp { min-height: 34px; padding: 5px 12px; border: 1.5px solid #b02a1d; border-radius: 2px; background: transparent; color: #b02a1d; font: 700 14px/1 'Archivo Variable', system-ui, sans-serif; cursor: pointer; } .ds-btn-stamp:hover { background: rgba(176,42,29,0.07); } .ds-btn-stamp:focus-visible { outline: 2px solid #1c2a66; outline-offset: 3px; }"
+    },
+    {
+      "name": "Ruled Field",
+      "kind": "input",
+      "refersTo": "field-ruled",
+      "description": "Caption above a ruled baseline; no box.",
+      "html": "<label class=\"ds-field\"><span>Email</span><input type=\"email\" placeholder=\"patient@clinic.com\"></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 2px; } .ds-field span { font: 650 12px/1.4 'Archivo Variable', system-ui, sans-serif; font-stretch: 82%; letter-spacing: 0.09em; text-transform: uppercase; color: #3c4a83; } .ds-field input { min-height: 40px; padding: 6px 2px; border: 0; border-bottom: 1.5px solid #5d7c6e; background: transparent; font: 400 17px 'Archivo Variable', system-ui, sans-serif; color: #1c2a66; } .ds-field input:hover { border-bottom-color: #3c4a83; } .ds-field input:focus { outline: none; border-bottom-color: #1c2a66; box-shadow: 0 1.5px 0 #1c2a66; }"
+    },
+    {
+      "name": "Time Slot Chip",
+      "kind": "chip",
+      "refersTo": "chip-slot-selected",
+      "description": "Cut-paper tile for picking a time; fills with ink when chosen.",
+      "html": "<label class=\"ds-slot\"><input type=\"radio\" name=\"t\" checked><span>10:30 AM</span></label>",
+      "css": ".ds-slot { display: inline-grid; place-items: center; min-width: 96px; min-height: 36px; border: 1px solid #5d7c6e; border-radius: 2px; background: rgba(238,245,240,0.85); font: 600 15px 'Archivo Variable', system-ui, sans-serif; color: #1c2a66; cursor: pointer; position: relative; } .ds-slot input { position: absolute; opacity: 0; } .ds-slot:hover { border-color: #1c2a66; } .ds-slot:has(input:checked) { background: #1c2a66; border-color: #1c2a66; color: #eef5f0; } .ds-slot:has(input:focus-visible) { outline: 2px solid #1c2a66; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Stamp",
+      "kind": "custom",
+      "refersTo": "stamp",
+      "description": "Rubber-stamp status; form differs per status (dashed scheduled, solid confirmed, double completed).",
+      "html": "<span class=\"ds-stamp ds-stamp--scheduled\">Scheduled</span> <span class=\"ds-stamp\">Confirmed</span> <span class=\"ds-stamp ds-stamp--completed\">Completed</span>",
+      "css": ".ds-stamp { display: inline-flex; padding: 2px 8px; border: 2px solid currentColor; border-radius: 3px; color: #b02a1d; font: 800 12px/1.5 'Archivo Variable', system-ui, sans-serif; font-stretch: 75%; letter-spacing: 0.13em; text-transform: uppercase; transform: rotate(-2.5deg); } .ds-stamp--scheduled { border-style: dashed; } .ds-stamp--completed { border-style: double; border-width: 4px; padding: 0 6px; }"
+    },
+    {
+      "name": "Letterhead Navigation",
+      "kind": "nav",
+      "refersTo": "letterhead",
+      "description": "Brand in expanded caps, role tabs with an ink underline when active.",
+      "html": "<nav class=\"ds-nav\"><strong>Secure Clinic</strong><a class=\"is-active\" href=\"#\">My visits</a><a href=\"#\">Book a visit</a><a href=\"#\">Records</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; gap: 4px; padding: 12px 0; border-bottom: 1px solid #3c4a83; font-family: 'Archivo Variable', system-ui, sans-serif; } .ds-nav strong { margin-right: auto; font-weight: 800; font-stretch: 125%; letter-spacing: 0.16em; text-transform: uppercase; color: #1c2a66; } .ds-nav a { padding: 8px 12px; border-bottom: 2px solid transparent; color: #3c4a83; font-weight: 600; text-decoration: none; } .ds-nav a:hover { color: #1c2a66; border-bottom-color: #a3b8ad; } .ds-nav a.is-active { color: #1c2a66; border-bottom-color: #1c2a66; } .ds-nav a:focus-visible { outline: 2px solid #1c2a66; outline-offset: 3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Prescription Safety Pad",
+    "overview": "Every screen is a sheet of the clinic's own security stationery. The ground is pale mint safety paper with a faint guilloche field. All text is carbon-blue ink. Forms are ruled lines rather than boxes, and sheets carry a microprinted border rule. Booking means filling a slip and tearing off its stub along a perforation. Statuses land as rubber stamps.\n\nThe security of the product is shown the way security paper shows it: in the material. Guilloche, microprint, serials and seals are the decoration, and each one also says \"this document is controlled\". Explanations of the real security controls ride on thin red leader lines pinned to the exact field they protect.\n\nDensity follows the screen's job. The public landing page is generous and lets the booking slip lead. The role screens (visits, appointment book, accounts, audit log) are ruled ledgers: tight rows, tabular figures, one ink colour.",
+    "keyCharacteristics": [
+      "Mint safety paper with a guilloche field, never white cards on grey.",
+      "One ink (carbon blue) for all text and rules; stamp red is reserved for stamps, security notes and errors.",
+      "Ruled form lines, perforations, microprint and serial numbers as the structural vocabulary.",
+      "Self-hosted Archivo with its width axis doing the hierarchy: expanded for letterhead, condensed for printed labels."
+    ],
+    "rules": [
+      { "name": "The One Ink Rule", "body": "Text and rules are carbon blue. Success messages are ink too; the only second hue on a page is stamp red (stamps, pinned notes, errors) or void grey (cancelled).", "section": "colors" },
+      { "name": "The Stamp Is Pressed, Not Painted Rule", "body": "Stamp red appears as outlines, small type and hairlines; never as a large filled block.", "section": "colors" },
+      { "name": "The Width Axis Rule", "body": "Hierarchy comes from width and weight in one family, not from a second typeface. Expanded means \"issued by the clinic\"; condensed means \"printed caption\".", "section": "typography" },
+      { "name": "The Tabular Figures Rule", "body": "Times, dates, serials, fees and counts always use tabular figures.", "section": "typography" },
+      { "name": "The Paper Only Rule", "body": "Depth comes from sheets of paper and nothing else: no glass, no glow, no hard offset blocks.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do put every surface on a sheet of safety paper (sheet-mint with the guilloche tile) on the safety-mint ground.",
+      "Do use ruled baselines (1.5px, form-rule-strong) for inputs instead of boxed fields.",
+      "Do show status with a stamp whose form differs per status, not colour alone.",
+      "Do pin security explanations to the exact field they protect, and only state controls that exist in the code.",
+      "Do self-host fonts and assets; the Content Security Policy allows fonts and scripts from the app's own origin only."
+    ],
+    "donts": [
+      "Don't put a small caption or kicker line above a heading; form codes belong beside the serial or in the sheet's small print.",
+      "Don't use stamp red as a background fill or for decoration.",
+      "Don't add a second typeface; vary Archivo's width and weight instead.",
+      "Don't animate anything beyond the stub tear and the stamp press.",
+      "Don't use white cards, glass, glow or hard offset shadows."
+    ]
+  }
+}
