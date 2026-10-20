@@ -49,7 +49,9 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     
     // If 401 and not already retrying, try to refresh token
-    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/api/auth/refresh') {
+    // Login and refresh failures are real answers, not expired tokens: never retry them.
+    const isAuthCall = ['/auth/login', '/auth/refresh', '/api/auth/refresh'].includes(originalRequest?.url);
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthCall) {
       originalRequest._retry = true;
       
       try {
